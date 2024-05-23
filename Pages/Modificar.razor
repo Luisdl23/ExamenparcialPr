@@ -1,9 +1,9 @@
-﻿@page "/Ingreso"
+﻿@page "/Revistas-editar/{autor}"
 @inject HttpClient Http
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager NavigationManager
 
-<h3>Revistas</h3>
+<h3>Modificar</h3>
 
 <EditForm Model="@revistas" OnValidSubmit="@Guardar">
 
@@ -42,71 +42,32 @@
 </EditForm>
 
 
-@if (revistas1 != null)
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Titulo</th>
-                <th>Autor</th>
-                <th>Genero</th>
-                <th>Anio de publicacion</th>
-                <th>Volumen</th>
-                <th>Numero de ejemplar</th>
-                <th>Borrar</th>
-                <th>Editar</th>
-            
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var revistas in revistas1)
-            {
-                <tr>
-                    <td>@revistas.Titulo</td>
-                    <td>@revistas.Autor</td>
-                    <td>@revistas.Genero</td>
-                    <td>@revistas.aniopublicacion</td>
-                    <td>@revistas.Volumen</td>
-                    <td>@revistas.Numeroejemplar</td>
-                    <td>
-                        <button class="btn btn-warning"
-                                @onclick="@(() => NavigationManager.NavigateTo($"/Revistas-editar/{revistas.Autor}"))">
-                            Editar
-                        </button>
-                    </td>
-                    <td><button class="btn btn-danger" @onclick="@(() => Borrar(revistas.Autor))">Eliminar</button></td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
 
 @code {
+    [Parameter]
+    public string autor { get; set; }
 
     private Revistas revistas = new Revistas();
     List<Revistas> revistas1 = new List<Revistas>();
 
+
     protected async Task Guardar()
     {
-        revistas1.Add(revistas);
 
         await localStorage.SetItemAsync("revistas1", revistas1);
 
 
+        NavigationManager.NavigateTo("/Ingreso");
+
     }
-    protected async Task Borrar(string Autor)
-    {
-        Revistas Borrarrevistas = revistas1.Find(c => c.Autor == Autor);
-        revistas1.Remove(Borrarrevistas);
-        await localStorage.SetItemAsync("revistas1", revistas1);
-    }
+
+
 
     protected override async Task OnInitializedAsync()
-    {   //La primera vez que se corre poner en comentarios, pues como no existen datos
-        //revistas1 = await localStorage.GetItemAsync<List<Revistas>>("revistas");
+    {
+        revistas1 = await localStorage.GetItemAsync<List<Revistas>>("revistas1");
+
+        revistas = revistas1.Find(c => c.Autor == autor);
+
     }
-
-
-
 }
